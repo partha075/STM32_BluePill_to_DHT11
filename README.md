@@ -112,8 +112,21 @@ It's a master-slave protocol where the master initiates all communication, and s
 The protocol allows for data and power transmission over the same wire, making it efficient for applications with limited wiring.
 
 ## Potential Issues
-1. The MCU should drive approximately 3.3V for the DHT11 to respond.
+1. Power Supply Issue
+- MCU powered through ST-LINK flashing device → only 2.8 V at DHT11 (insufficient).
+- Solution: Provide proper 3.3 V / 5 V to DHT11.
 2. Timing Issues:
-The DHT11 is very timing sensitive. If the pin stays LOW or HIGH for even 1 micro seconds beyond the threshhold limit. It won't respond. Resulting in a Timeout ..
-3. Reading Bits: Every Bit should be entered on the Right Most position and left shifted by one position. The Last Bit should be right shifted at the end. Since, we need only 7 shifts and the last bit should be in the rightmost position. 
+- The DHT11 is very timing sensitive.
+- If the pin stays LOW or HIGH for even 1 micro seconds beyond the threshhold limit. It won't respond. Resulting in a Timeout .
+- Solution: Ensure MCU sets line LOW before handshake wait
+4. Bit Shifting Error:
+- Received data contained incorrect temperature values (e.g., 88°C).
+- Cause: Assigning a byte of memory directly to a single bit position.
+- Solution: Shift bits correctly — insert into the rightmost position of buffer and shift left for each new bit.
+
+Debug Checklist — Start Signal Timing
+
+Create a HAL_TIM_GET_COUNTER instance to measure the duration of voltage pulses from DHT11.
+If initial handshake signals match expected timing, proceed to bit reading.
+
       
