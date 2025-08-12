@@ -18,10 +18,10 @@ The firmware is written in **C** using **STM32CubeIDE** and uses **TIM3 microsec
 
 ## 🛠 Hardware Used
 - **STM32F103C8T6 (Blue Pill)**
-- DHT11 temperature & humidity sensor
-- 10kΩ pull-up resistor (Data pin → VCC)
-- USB-UART converter (FTDI / CH340)
-- Breadboard & jumper wires
+- **DHT11 temperature & humidity sensor**
+- **10kΩ pull-up resistor** (Data pin → VCC)
+- **USB-UART converter** (FTDI)
+- Breadboard &/or Jumper wires
 
 ---
 
@@ -54,14 +54,29 @@ The **DHT11** uses a **single-wire bidirectional half-duplex protocol** where th
   - **~70 µs HIGH** → `1`
 
 **Data Frame:**
-
-A Pull-up 
-
-### 3️⃣ Pull-up Resistor
+### Pull-up Resistor
 - **Required** for open-drain operation
 - Typical value: **10 kΩ** (between Data & VCC)
-- Lower values (4.7 kΩ) improve noise immunity on longer cables
+- 
+The DHT11’s data pin is open-drain (also called open-collector).
+The sensor can only pull the line LOW.
 
+When it “releases” the line, something else must pull it HIGH.
+This where the pull-up resistor comes in.
+
+**How It Works**
+When no device is pulling the line LOW, the pull-up resistor gently pulls it to a stable *HIGH level (logic 1)*.
+
+This prevents the line from **floating** (unreliable, noisy readings).
+
+**Built-In vs External Resistor**
+Many DHT11 modules already have a 10 kΩ pull-up resistor soldered on the PCB.
+
+If you’re using a bare DHT11 sensor , you must add an external pull-up resistor:
+
+*Value*: 4.7 kΩ to 10 kΩ (10 kΩ is standard)*
+
+**Tip:** For long wires or high-noise environments, use 4.7 kΩ instead of 10 kΩ.
 ---
 
 ## ⏱ STM32 Clock Configuration
@@ -77,12 +92,8 @@ To achieve **microsecond precision**, the project configures TIM3 as follows:
   void delay_ms(uint16_t ms);
   
 ## ⏱ STM32 and DHT11 Timing Diagram
+Full Handshake + Bit Transmission:
 
-## Full Handshake + Bit Transmission:
-
-arduino
-Copy
-Edit
 Host (STM32)                Sensor (DHT11)
 │                           │
 LOW  --------------------   │   (≥ 18 ms)
@@ -96,3 +107,13 @@ HIGH --                     │   (~26–28 µs) → '0'
 HIGH --------               │   (~70 µs) → '1'
 
 ## Communication Protocol
+The Dallas 1-Wire protocol, now commonly known as 1-Wire, is a** low-speed, low-power communication protocol** developed by Dallas Semiconductor (now Maxim Integrated) for connecting devices like sensors and memory chips to a master microcontroller over a single data line. 
+It's a master-slave protocol where the master initiates all communication, and slaves respond. 
+The protocol allows for data and power transmission over the same wire, making it efficient for applications with limited wiring.
+
+## Potential Issues
+1. The MCU should drive approximately 3.3V for the DHT11 to respond.
+2. Timing Issues:
+The DHT11 is very timing sensitive. If the pin stays LOW or HIGH for even 1 micro seconds beyond the threshhold limit. It won't respond. Resulting in a Timeout ..
+3. Reading Bits: Every Bit should be entered on the Right Most position and left shifted by one position. The Last Bit should be right shifted at the end. Since, we need only 7 shifts and the last bit should be in the rightmost position. 
+      
