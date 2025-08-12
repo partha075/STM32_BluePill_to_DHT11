@@ -48,11 +48,28 @@ The **DHT11** uses a **single-wire bidirectional half-duplex protocol** where th
    - Pulls line HIGH for ~80 µs  
 <img width="521" height="217" alt="image" src="https://github.com/user-attachments/assets/f344cb03-dfe5-44d6-b57a-f981bd7b5b1f" />
 
+**Data Format**
+- Single-bus data format is used for communication and synchronization between MCU and DHT11 sensor.
+- One communication process is about 4ms.
+- Data consists of decimal and integral parts.
+- A complete data transmission is 40bit, and the sensor sends higher data bit first.
+**Data format:** **8bit integral RH data + 8bit decimal RH data + 8bit integral T data + 8bit decimal T
+data + 8bit check sum.** If the data transmission is right, the check-sum should be the last 8bit of
+"8bit integral RH data + 8bit decimal RH data + 8bit integral T data + 8bit decimal T data".
 ### Data Transmission (40 bits)
 - Each bit starts with a **50 µs LOW pulse** from the sensor
 - Followed by a HIGH pulse:
   - **26–28 µs HIGH** → `0`
   - **~70 µs HIGH** → `1`
+  - 
+**Sending a '0' Bit**
+<img width="569" height="368" alt="image" src="https://github.com/user-attachments/assets/5ffd3057-6e52-45ff-9cb0-fc6d421526e2" />
+
+**Sending a '1' Bit**
+<img width="540" height="332" alt="image" src="https://github.com/user-attachments/assets/dfc1cc4e-bc12-45d9-924c-cb3684821587" />
+
+
+
 
 **Data Frame:**
 ### Pull-up Resistor
@@ -125,9 +142,7 @@ The protocol allows for data and power transmission over the same wire, making i
 - Cause: Assigning a byte of memory directly to a single bit position.
 - Solution: Shift bits correctly — insert into the rightmost position of buffer and shift left for each new bit.
 
-Debug Checklist — Start Signal Timing
-
-Create a HAL_TIM_GET_COUNTER instance to measure the duration of voltage pulses from DHT11.
-If initial handshake signals match expected timing, proceed to bit reading.
+**Create a HAL_TIM_GET_COUNTER instance to measure the duration of voltage pulses from DHT11.
+If initial handshake signals match expected timing, proceed to bit reading.**
 
       
