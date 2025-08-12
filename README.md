@@ -46,6 +46,7 @@ The **DHT11** uses a **single-wire bidirectional half-duplex protocol** where th
 3. **DHT11 Response**:  
    - Pulls line LOW for ~80 µs  
    - Pulls line HIGH for ~80 µs  
+<img width="521" height="217" alt="image" src="https://github.com/user-attachments/assets/f344cb03-dfe5-44d6-b57a-f981bd7b5b1f" />
 
 ### Data Transmission (40 bits)
 - Each bit starts with a **50 µs LOW pulse** from the sensor
